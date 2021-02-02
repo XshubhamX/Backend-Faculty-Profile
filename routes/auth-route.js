@@ -1,13 +1,14 @@
 const express = require("express");
 const { signup, login } = require("../controllers/auth-controller");
-const { sendMail } = require("../middleware/sendMail");
+const { sendConfirmationEmail } = require("../middleware/sendMail");
+const { setOtp } = require("../shared/current-otp");
 
 const router = express.Router();
 
 const { check } = require("express-validator");
 
 router.post(
-  "/signup",
+  "/sendotp",
   [
     check("name").not().isEmpty(),
     check("email")
@@ -15,9 +16,11 @@ router.post(
       .isEmail(),
     check("password").isLength({ min: 6 }),
   ],
-  sendMail,
-  signup
+  sendConfirmationEmail,
+  setOtp
 );
+
+router.post("/signup", signup);
 router.post("/login", login);
 
 module.exports = router;

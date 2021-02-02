@@ -1,4 +1,7 @@
 const { v4: uuidv4 } = require("uuid");
+const HttpError = require("../models/http-error");
+
+let otpCheck = require("../shared/otp");
 
 const dummy_data = [
   {
@@ -12,24 +15,31 @@ const dummy_data = [
 ];
 
 const signup = (req, res, next) => {
-  let newUser;
-  try {
-    newUser = {
-      id: uuidv4,
-      email: req.body.email,
-      name: req.body.name,
-      subjects: req.body.subjects,
-      desc: req.body.desc,
-      password: req.body.password,
-    };
-    dummy_data.push(newUser);
-    res.status(201).json({
-      message: "sign up",
-    });
-  } catch (err) {
-    res.status(500).json({
-      message: err,
-    });
+  if (otpCheck.OTP === req.body.opt) {
+    console.log("hello");
+    let newUser;
+    try {
+      newUser = {
+        id: uuidv4,
+        email: req.body.email,
+        name: req.body.name,
+        subjects: req.body.subjects,
+        desc: req.body.desc,
+        password: req.body.password,
+      };
+      dummy_data.push(newUser);
+      res.json({
+        message: "sign up",
+      });
+    } catch (err) {
+      res.status(500).json({
+        message: err,
+      });
+    }
+  } else {
+    console.log("abcdefgh");
+    const error = new HttpError("Wrong Otp", 500);
+    return next(error);
   }
 };
 
@@ -40,10 +50,14 @@ const login = (req, res, next) => {
       (x) => x.email === req.body.email && x.password === req.body.password
     );
     if (!user) {
-      res.json({ message: "User Not found" });
+      const error = new HttpError("User Not Found", 500);
+      return next(error);
     }
-    res.status(201).json({
-      message: "Logged In",
+    res.json({
+      email: user.email,
+      subjects: user.subjects,
+      desc: user.desc,
+      name: user.name,
     });
   } catch (err) {
     res.status(500).json({
