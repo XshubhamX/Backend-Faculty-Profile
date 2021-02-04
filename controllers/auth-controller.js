@@ -15,8 +15,7 @@ const dummy_data = [
 ];
 
 const signup = (req, res, next) => {
-  if (otpCheck.OTP === req.body.opt) {
-    console.log("hello");
+  if (otpCheck.OTP === req.body.otp) {
     let newUser;
     try {
       newUser = {
@@ -28,8 +27,10 @@ const signup = (req, res, next) => {
         password: req.body.password,
       };
       dummy_data.push(newUser);
+      console.log(newUser);
       res.json({
-        message: "sign up",
+        ...newUser,
+        password: undefined,
       });
     } catch (err) {
       res.status(500).json({
@@ -37,7 +38,6 @@ const signup = (req, res, next) => {
       });
     }
   } else {
-    console.log("abcdefgh");
     const error = new HttpError("Wrong Otp", 500);
     return next(error);
   }
@@ -54,10 +54,8 @@ const login = (req, res, next) => {
       return next(error);
     }
     res.json({
-      email: user.email,
-      subjects: user.subjects,
-      desc: user.desc,
-      name: user.name,
+      ...user,
+      password: undefined,
     });
   } catch (err) {
     res.status(500).json({
@@ -66,4 +64,28 @@ const login = (req, res, next) => {
   }
 };
 
-module.exports = { signup, login };
+const updateUser = (req, res, next) => {
+  try {
+    const { name, subjects, desc } = req.body;
+    user = dummy_data.find((x) => x.id === req.body.id);
+
+    if (!user) {
+      const error = new HttpError("Authentication Revoked", 500);
+      return next(error);
+    }
+
+    user.name = name;
+    user.desc = desc;
+    user.subjects = subjects;
+
+    res.json({
+      message: "update successfull",
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error,
+    });
+  }
+};
+
+module.exports = { signup, login, updateUser };

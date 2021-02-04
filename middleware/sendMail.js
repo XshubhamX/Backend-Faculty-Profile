@@ -7,15 +7,16 @@ const gridKey =
 sgMail.setApiKey(gridKey);
 const otp = require("otp-generator");
 
-const yourOtp = otp.generate(6, {
-  alphabets: false,
-  digits: true,
-  upperCase: false,
-  specialChars: false,
-});
-
+let yourOtp;
 const sendConfirmationEmail = async (req, res, next) => {
   try {
+    yourOtp = otp.generate(6, {
+      alphabets: false,
+      digits: true,
+      upperCase: false,
+      specialChars: false,
+    });
+
     await sgMail.send({
       to: req.body.email,
       from: "shubhambhardwajfdb@gmail.com",

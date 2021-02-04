@@ -1,5 +1,5 @@
 const express = require("express");
-const { signup, login } = require("../controllers/auth-controller");
+const { signup, login, updateUser } = require("../controllers/auth-controller");
 const { sendConfirmationEmail } = require("../middleware/sendMail");
 const { setOtp } = require("../shared/current-otp");
 
@@ -22,5 +22,5 @@ router.post(
 
 router.post("/signup", signup);
 router.post("/login", login);
-
+router.patch("/update", updateUser);
 module.exports = router;
